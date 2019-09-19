@@ -26,6 +26,7 @@ package com.stackroute.datamunger;
  * the test cases together.
  */
 
+import java.sql.SQLOutput;
 import java.util.regex.*;
 
 public class DataMunger {
@@ -80,12 +81,21 @@ public class DataMunger {
 	
 	public String getBaseQuery(String queryString) {
 
-		Pattern pat = Pattern.compile("(.*)\\s(where)\\s(.*)");
+		Pattern pat = Pattern.compile("(.*)\\swhere\\s(.*)");
 		Matcher mat = pat.matcher(queryString);
 		String str="";
 		if (mat.find( )) {
 			str= mat.group(1);
+		}else
+		{
+			pat = Pattern.compile("(.*)\\sgroup\\s(.*)");
+			mat = pat.matcher(queryString);
+			str="";
+			if (mat.find( )) {
+				str= mat.group(1);
+			}
 		}
+
 		return str;
 	}
 
@@ -190,7 +200,21 @@ public class DataMunger {
 
 	public String[] getLogicalOperators(String queryString) {
 
-		return null;
+		Pattern pat = Pattern.compile("\\s([aon][nro][dt]?)\\s");
+		Matcher mat = pat.matcher(queryString);
+		String str="";
+		while(mat.find())
+		{
+			str=str+queryString.substring(mat.start()+1,mat.end()-1)+" ";
+		}
+
+		Pattern p = Pattern.compile("\\s");
+		String st[] = p.split(str);
+		if(str=="")
+			return null;
+
+		return st;
+
 	}
 
 	/*
@@ -203,6 +227,14 @@ public class DataMunger {
 
 	public String[] getOrderByFields(String queryString) {
 
+		Pattern pat = Pattern.compile(".*by\\s(.*)$");
+		Matcher mat = pat.matcher(queryString);
+		String str[]= new String[1];
+		if(mat.find())
+		{
+			str[0] = mat.group(1);
+			return str;
+		}
 		return null;
 	}
 
@@ -216,6 +248,14 @@ public class DataMunger {
 	 */
 
 	public String[] getGroupByFields(String queryString) {
+		Pattern pat = Pattern.compile(".*group\\sby\\s(.*)");
+		Matcher mat = pat.matcher(queryString);
+		if(mat.find())
+		{
+			String str[]=new String[1];
+			str[0]=mat.group(1);
+			return str;
+		}
 		return null;
 	}
 
@@ -231,7 +271,20 @@ public class DataMunger {
 
 	public String[] getAggregateFunctions(String queryString) {
 
-		return null;
+		Pattern pat = Pattern.compile("\\w*\\(\\w*\\)");
+		Matcher mat = pat.matcher(queryString);
+		String str="";
+		while(mat.find())
+		{
+			str=str+queryString.substring(mat.start(),mat.end())+" ";
+		}
+
+		Pattern p = Pattern.compile("\\s");
+		String st[] = p.split(str);
+		if(str=="")
+			return null;
+
+		return st;
 	}
 
 }
